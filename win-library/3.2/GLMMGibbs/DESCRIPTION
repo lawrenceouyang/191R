@@ -1,0 +1,16 @@
+Package: GLMMGibbs
+Version: 0.5-1.2
+Author: Jonathan Myles and David Clayton <mylesj@icrf.icnet.uk>
+Maintainer: Jonathan Myles <mylesj@icrf.icnet.uk>
+Depends: R (>= 2.10)
+Date: 2001/22/01, patched BDR 2006-01-01, 2009-09-07, 2012-12-16
+Title: Generalised Linear Mixed Models by Gibbs Sampling
+Description: Generalised Linear Mixed Models are an extension of
+             Generalised Linear Models to include non-independent responses.
+             This package allows them to be fitted by including functions
+             for declaring factors to be random effects, for fitting models
+             and generic functions for examining the fits. 
+License: GPL (>= 2)
+Packaged: 2012-12-26 10:40:16 UTC; ripley
+Built: R 3.1.0; x86_64-w64-mingw32; 2014-02-15 18:25:06 UTC; windows
+Archs: i386, x64

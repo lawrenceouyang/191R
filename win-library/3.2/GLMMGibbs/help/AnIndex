@@ -1,0 +1,14 @@
+add.block	ordinal.end
+bugs.out	bugs.out
+coda.object	coda.object
+epil.bugs	epil.bugs
+glmm	glmm
+model.init	model.init
+ordinal.end	add.block
+plot.glmmfit	plot.glmmfit
+print.glmmfit	print.glmmfit
+Ra	Ra
+rtparse	rtparse
+sampled.values	sampled.values
+scottish.lip.cancer	scottish.lip.cancer
+seeds	seeds

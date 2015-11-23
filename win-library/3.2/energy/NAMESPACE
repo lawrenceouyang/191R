@@ -1,0 +1,33 @@
+useDynLib(energy)
+
+importFrom(boot,boot)
+
+export(
+  bcdcor,
+  dcor, 
+  DCOR, 
+  dcor.t,
+  dcor.ttest,
+  dcov, 
+  .dcov, 
+  dcov.test, 
+  disco, 
+  disco.between, 
+  edist, 
+  energy.hclust, 
+  eqdist.e, 
+  eqdist.etest, 
+  indep.test,
+  ksample.e, 
+  mvI, 
+  mvI.test,
+  mvnorm.e, 
+  mvnorm.etest, 
+  normal.e,
+  poisson.m, 
+  poisson.mtest
+)
+
+S3method(print,disco)
+
+

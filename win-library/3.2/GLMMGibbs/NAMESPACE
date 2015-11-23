@@ -1,0 +1,4 @@
+useDynLib("GLMMGibbs")
+
+# Export all names
+exportPattern(".")
