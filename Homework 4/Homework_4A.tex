@@ -89,4 +89,57 @@ This gives us the following ranking:\\ \\
 'Chelsea'     &-0.329805720\\
 \hline
 \end{tabular}
+\newpage
+3a.\\
+\includegraphics[scale = .65]{pointCloud.jpeg} \\
+3b. \\
+\includegraphics[scale = .65]{PCApoints.jpeg}
+\newpage
+3c.
+\begin{lstlisting}
+DIST = as.matrix(dist(A, method = "euclidean", diag = FALSE, upper = TRUE, p = 2));
+W = exp(-DIST^2/1); #(.75,1)
+D = diag(rowSums(W));
+invD = solve(D);
+L = invD %*% W;
+
+# Obtain square root of D
+eigD = eigen(D);
+sqrtD = eigD$vectors %*% diag(sqrt(eigD$values)) %*% t(eigD$vectors);
+
+S = sqrtD %*% L %*% solve(sqrtD);
+eigS = eigen(S);
+#Our result is the two eigenvectors eigS$vectors[,2], eigS$vectors[,3]
+\end{lstlisting}
+Graphs: \\
+\includegraphics[scale = .55]{DiffusionMap075.jpeg}
+\includegraphics[scale = .55]{DiffusionMap1.jpeg} \\
+The embedding with $\epsilon = 0.75$ has clearly separated clusters of the two circles. It gives a more readable representation of the relation of the two circles.
+\newpage
+4. \[\min_{x\in\mathbb{Z}_2^n}\sum_{(i,j)\in E}(x_i  - A_{ij}x_j)^2 = \min_{x\in\mathbb{Z}_2^n}x^T(D-A)x\] 
+The matrix $(D-A)$ takes the form: \[
+D - A = \left\{
+\begin{array}{@{}l@{\thinspace}l}
+\sum_{j=1,j \neq i}^n|A_{ij}| &: i = j \\
+-A_{ij} &: i \neq j \\
+\end{array}
+\right\}
+\]
+Then $x^T(D-A)$ can be represented as the positive/negative sum column sum of $D-A$, depending on $x$. that is:
+\[
+x^T(D-A)_k = \sum_{j=1,j \neq i}^nx_j|A_{ij}|+\sum_{i=1,j\neq i}^n-x_iA_{ij}
+\]
+Finally, multiplying the vector x results in a summation of the positive/negative sum.
+\[
+\min_{x\in\mathbb{Z}_2^n}x^T(D-A)x =\min_{x\in\mathbb{Z}_2^n}\sum_{i=1}^nx_i(\sum_{j=1,j \neq i}^nx_j|A_{ij}|+\sum_{i=1,j\neq i}^n-x_iA_{ij})
+\]
+Combining the inner sums we get:
+\[
+\min_{x\in\mathbb{Z}_2^n}x^T(D-A)x = \min_{x\in\mathbb{Z}_2^n}\sum_{i,j\in E}x_i^2 -2\sum_{i,j\in E}A_{ij}x_ix_j + \sum_{i,j\in E}(A_{ij}x_j)^2
+\]
+Again, combining the sums gives us:
+\begin{align} \nonumber
+\min_{x\in\mathbb{Z}_2^n}x^T(D-A)x &= \min_{x\in\mathbb{Z}_2^n}\sum_{i,j\in E}x_i^2 -2A_{ij}x_ij_i + (A_{ij}x_j)^2 \\ \nonumber
+\min_{x\in\mathbb{Z}_2^n}x^T(D-A)x &= \min_{x\in\mathbb{Z}_2^n}\sum_{i,j\in E}(x_i - A_{ij}x_j)^2
+\end{align}
 \end{document}
