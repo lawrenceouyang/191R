@@ -3,9 +3,12 @@
 \usepackage[top=18mm, bottom=18mm, left=20mm, right=20mm]{geometry}
 
 \usepackage{hyperref}
-
+\usepackage{booktabs}
+\usepackage{tabularx}
 \usepackage{graphicx}
 \usepackage[space]{grffile}
+\usepackage{adjustbox}
+\usepackage{verbatimbox}
 
 \newcommand{\mb}[1]{\mbox{\boldmath$#1$}}
 
@@ -18,7 +21,7 @@
 \usepackage{comment}
 \usepackage{array}
 \usepackage{algorithm}
-\usepackage{algorithmic}
+\usepackage{algorithmicx}
 \usepackage{url}
 
 \usepackage{setspace}
@@ -31,8 +34,6 @@
 
 \newcommand{\myreferences}{../../../Postdocs_laptop/postdoc_bib_file}
 
-\usepackage{lineno}
-
 \hypersetup{
     colorlinks=true,
     citecolor=red,
@@ -43,7 +44,7 @@
 \usepackage{listings}
 \usepackage{color}
 
-\definecolor{dkgreen}{rgb}{0,0.6,0}
+\definecolor{dkgreen}{rgb}{0,0.2,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
@@ -55,7 +56,7 @@
   columns=flexible,
   basicstyle={\small\ttfamily},
   numbers=none,
-  numberstyle=\tiny\color{gray},
+  numberstyle=\tiny\color{mauve},
   keywordstyle=\color{blue},
   commentstyle=\color{dkgreen},
   stringstyle=\color{mauve},
@@ -87,7 +88,7 @@
 \vspace{5mm}
 
 \begin{abstract}
-The prediction of the returns of a stock has been a very popular problem since the very existence of the stock market. Given the day's returns, what will tomorrow's look like? What will it look like next week, or next month? An idea to examine this is the use of correlation measures. The market is not an isolated system; all things affect one another. This work will use a variety of known correlation measures (Pearson's, Spearman's, Hoeffding, maximal correlation, distance correlation, MIC) to compute the most relevant instruments to which we will apply linear regression. The goal is to find an accurate predictor for future returns. 
+The prediction of the returns of a stock has been a very popular problem since the very existence of the stock market. Given the day's returns, what will tomorrow's look like? What will it look like next week, or next month? An idea to examine this is the use of correlation measures. The market is not an isolated system; all things affect one another. This work will use a variety of known correlation measures (Pearson's, Spearman's, Hoeffding, distance correlation) to compute the most relevant instruments to which we will apply linear regression. The goal is to find an accurate predictor for future returns. 
 \end{abstract}
 
 
@@ -97,27 +98,50 @@ The prediction of the returns of a stock has been a very popular problem since t
 
 \section{Introduction}
 
-The idea behind examining logarithmic returns is extremely rational. By using returns instead of raw prices, our values become normalized, which is a requirement for accurate comparisons and measurements. Logarithmic functions are log-normal as well, and as such, our returns our now normally distributed. However, with these benefits also come a price. The logarithmic returns does not have an implied one-to-one relationship with the simple returns, as well as having higher variance which can possibly reduce expected returns\cite{CompLogSimRet}. For simplicity, this paper will focus on the use of logarithmic returns to simplify our results.
+The idea behind examining logarithmic returns is extremely rational. By using returns instead of raw prices, our values become normalized, which is a requirement for accurate comparisons and measurements. Logarithmic functions are log-normal as well, and as such, our returns our now normally distributed. However, with these benefits also come a price. The logarithmic returns does not have an implied one-to-one relationship with the simple returns, as well as having higher variance which can possibly reduce expected returns\cite{CompLogSimRet}. For simplicity, this paper will focus on the use of logarithmic returns to simplify our results. Below is a brief description of our correlation measures.
 
-\subsection{Correlation Measures}
+\subsection{Pearson Correlation}
 
-%\vspace{10mm}  % add white space whenever needed
+The Pearson correlation is an extremely basic and simple correlation measure used for many statistical practices. It is defined as:
 
-Determining our significant predictors using only a standard correlation measure like Pearson or Spearman would be too mundane. We instead examine other measurements, beginning with the maximal correlation. Maximal correlation 
+\begin{equation}
+Cov(X,Y) = \sum_{i=1}^n\frac{(x_i - \bar{X})(y_i - \bar{Y})}{n-1}
+\end{equation}
+\begin{equation}
+Cor(X,Y) = \frac{Cov(X,Y)}{Var(X)Var(Y)}
+\end{equation}
+ However, because of it's simplicity, the Pearson correlation faces many shortcomings. As shown in equation 1.1, the covariance is greatly affected if $x_i, y_i$ are extremely large or small values. Since Pearson only measure linear relationships, any nonlinear dependency will not be represented\cite{CorComp}. 
 
+\subsection{Spearman's Rank Correlation}
 
+Spearman's correlation is similar to Pearson's except rather than using raw values, Spearman uses ranked values. This better normalizes the data set and accounts for extreme values in the correlation. Consider $d$ to be the distance between rank $x_i, y_i$, then Spearman's rank correlation can be calculated as\cite{CompGeneExpress}:
 
+\begin{equation}
+\rho_{Spearman}(X,Y) = 1 - \frac{6\sum_{i=1}^nd_i^2}{n(n^2 - 1)}
+\end{equation}
 
-\begin{figure}[h]
-\begin{center}
-\includegraphics[width=0.46\columnwidth]{Directed_Core_Per}
-\end{center}
-\caption{This is how you add a plot to a Figure. It is always a good idea to add such a caption to each Figure, and explain what the figure is about. Also, if your plot has x and y axis, please always label your graphs (within MATLAB) so that your plots/results can be easily read and understood.}
-\label{fig:DirCorPer}
-\end{figure}
+Spearman also suffers the same shortcomings as Pearson, however, it does handle certain cases more gracefully, and thus is often also considered alongside Pearson.
 
-In Section \ref{sec:ourWork} we ... 
-In Section  \ref{sec:NumExpSyn} we test the above algorithms on synthetically generated data sets, while in Section \ref{sec:NumExpReal} we do so for a real data set. Finally, in Section  \ref{sec:conclusion} we conclude with a summary of our results, and discuss future possible research direction. 
+\subsection{Hoeffding's D}
+
+Determining our significant predictors using only a standard correlation measure like Pearson or Spearman would be too mundane. We instead examine other measurements, beginning with Hoeffding's D.
+Hoeffding's D measures the difference of joint ranks and the product of the marginal ranks. The shortcomings of Spearman and Pearson are their inability to detect nonlinear relationships. However, Hoeffding's D is capable of this, making it more versatile\cite{CorComp}.
+
+\subsection{Distance Correlation}
+
+The distance correlation simply uses the euclidean distance between our data points to calculate the correlation\cite{CorDist}. Similar to Hoeffding's D, distance correlation is able to identify nonlinear relationships, making it more versatile. It is also relatively easy to implement. Consider the distant covariance:
+\begin{equation}
+dCov(X,Y) = \sqrt{\frac{1}{n^2}\sum_{i,j=1}^nx_{ij}y_{ij}}
+\end{equation}
+\begin{equation}
+dVar(X) = dCov(X,X) \hspace{8mm} dVar(Y) = dCov(Y,Y)
+\end{equation}
+\begin{equation}
+dCor(X,Y) = \frac{dCov(X,Y)}{\sqrt{dVar(X)dVar(Y)}}
+\end{equation}
+
+With the above measurements considered, in Section \ref{sec:ourWork} we put them to the test by extracting the top values and using it for linear regression. 
+In Section \ref{sec:NumExpReal} we test the algorithms for a real data set. Finally, in Section  \ref{sec:conclusion} we conclude with a summary of our results, and discuss future possible research direction. 
 
 
 
@@ -125,80 +149,133 @@ In Section  \ref{sec:NumExpSyn} we test the above algorithms on synthetically ge
 
 \textbf{Questions/Comments/Things that could be done}
 \begin{itemize}
-\item What is a good notion of core-periphery structure in directed networks? Would the null model shown in Figure \ref{fig:DirCorPer} be a good model?
-\item Can one build on or expand some of the above methods and apply them to directed networks? 
-\item As a starting point, perhaps apply simulated annealing to the objective function induced by the above null model
-\item Apply this to a real network, a good such example might be the migration network between counties in the United States, which we have seen in class in the past.
-\item This is how you add an url link 
- \begin{center}
-   \url{http://people.maths.ox.ac.uk/porterm/papers/prestige_final.pdf} 
-\end{center}   
+\item Since obtaining such large correlation matrices are calculation intensive, what other methods can be used to trim our selection before creating our matrices?
+\item What kind of accuracy would using alternating entries give? 
+\item What correlation measure is most affective, and why?
+\item How many instruments should be considered when building our model? Using more would indeed increase our R-squared, but would it result in over-fitting?
 \end{itemize}
-
-\textcolor{red}{This is how you color tex in red ...}
-
-\textcolor{blue}{This is how you color tex in blue ...}
 
 \section{Our work}    \label{sec:ourWork}
 \subsection{The Data}
 
-The data set being used is the logarithmic return prices from date to date for 477 stocks. Since the data contains many not-available entries, we begin by stripping those out of our measurements. Instruments with a high number of NA entries are entirely removed along with missing rows. This leaves us with a dataset containing number instruments with data for number of days.
+The data set being used is the logarithmic return prices from date to date for 477 stocks. Since the data contains many not-available entries, we begin by stripping those out of our measurements. Instruments with a high number of NA entries are entirely removed along with missing rows. This leaves us with a dataset containing 436 instruments with data for 2629 days. This presents a problem: our dataset is too large to due a correlation function in a reasonable time frame. To combat this, we will only use the first 500 entries to determine correlation. The remaining values will be used to as our test matrix.
 
 \subsection{The Process}
-With our primmed and proper data, we begin by calculating their coefficient matrices. Considering the size of our data, the calculation of our coefficient matrices take a very large amount of time. Consider the following R code to compute the correlation coefficients:
-\begin{lstlisting}
-# Consider the given RETS matrix, remove poor columns and rows:
+With our primmed and proper data, we begin by calculating their coefficient matrices. Considering the size of our data, the calculation of our coefficient matrices take a very large amount of time. 
+Of course, building the matrices is the simple, although lengthy, part. \vspace{5mm}\\
+Now for the instrument we would like to predict, we need to sort it's correlation values in descending order, and choose the amount to use in our linear regression. Once sorted, we build our linear regression model and evaluate its accuracy. \vspace{5mm} \\
+With our model, we then use our remaining data points to create a predicted vector $\hat{y}$. We then compare our prediction with the actual values, and calculate the average error $\epsilon$.$\epsilon$ is defined as:
+\begin{equation}
+\epsilon = |\frac{y - \hat{y}}{nrow - 100}|
+\end{equation}
+We want a minimized error $\epsilon$ as that would denote a more accurate prediction. Our results are shown in the next section.
+\newpage
+\section{Numerical Results}   \label{sec:NumExpReal}
+The tables below represents a selection of 5 instruments, and the 20 instruments that had the strongest relationships from left to right with them. This includes the average error and the adjusted R-squared value for the given regression model.\\
+\begin{center}
+Pearson \\
+\begin{adjustbox}{width = 1\textwidth}
+	\small
+\addvbuffer[10pt 5pt]{\begin{tabular}{c|cccccccccccccccccccc}\toprule[1.5px]
+	\textbf{SPY} & C & JPM & GS & AXP & MS & GE & BBT & TROW & WFC & KEY & EMR & NTRS & PPG & ITW & ETN & LNC & PCAR & BEN & BK & CINF\\
+	\midrule
+	\textbf{YHOO} & AMZN & EBAY & SPY & NTAP & LLTC & ADI & VRSN & XLNX & JBL & KLAC & TER & JDSU & MOLX & JNPR & AMAT & FISV & BRCM & TMO & LRCX & ADBE \\
+	\midrule
+	\textbf{DELL} & SPY & LLTC & CSCO & INTC & ADI & AMAT & MOLX & XLNX & MSFT & KLAC & CTAS & ALTR & IBM & PCAR & LRCX & TXN & HPQ & JBL & PBI & AXP \\
+	\midrule
+	\textbf{AAPL} & SPY & IR & NTAP & PPG & INTC & CSCO & LLTC & MSFT & JCI & DELL & JNPR & SIAL & PCAR & CHRW & PH & PBI & YHOO & FISV & AA & ITW \\
+	\midrule
+	\textbf{IBM} & SPY & MSFT & LLTC & AXP & INTC & MS & OMC & XLNX & AMAT & CSCO & C & MOLX & BK & ORCL & GS & PCAR & SCHW & TROW & ADI & CINF\\
+	\bottomrule[1.25px]
+\end{tabular}}
+\end{adjustbox} \\ 
+	\addvbuffer[5pt 20pt]{\begin{tabular}{cccccc}\toprule[1.5px]
+		& \textbf{SPY} & \textbf{YHOO} & \textbf{DELL} & \textbf{AAPL} & \textbf{IBM} \\
+		\midrule
+		R-Squared & 0.8825 & 0.5807 & 0.4723 & 0.2501& 0.5363\\
+		\midrule
+		Error $\epsilon$ & 0.00414 & 0.01414 & 0.01117& 0.01454& 0.00656\\
+		\bottomrule[1.25px]
+	\end{tabular}} \\
+Spearman \\
+\begin{adjustbox}{width = 1\textwidth}
+	\small
+	\addvbuffer[10pt 5pt]{\begin{tabular}{c|cccccccccccccccccccc}\toprule[1.5px]
+			SPY & C & AXP & GS & JPM & NTRS & MS & STI & ETN & PCAR & BBT & BEN & TROW & DOV & GE & WFC & EMR & KEY & LM & LNC & BAC \\
+			\midrule
+			YHOO & EBAY & AMZN & SPY & NTAP & JNPR & VRSN & JDSU & ADI & XLNX & LLTC & TER & JBL & KLAC & ADBE & TXN & INTC & BRCM & QCOM & FFIV & MOLX \\
+			\midrule
+			DELL & SPY & INTC & CSCO & LLTC & AMAT & MSFT & ADI & LRCX & IBM & XLNX & CTAS & PCAR & HPQ & NTAP & MOLX & ALTR & ORCL & KLAC & TXN & BRCM \\
+			\midrule
+			AAPL & SPY & NTAP & INTC & JNPR & DELL & MSFT & IR & CSCO & BRCM & PCAR & PPG & SIAL & DOV & LLTC & FISV & JCI & PH & CHRW & MOLX & ORCL \\
+			\midrule
+			IBM & SPY & MSFT & INTC & CSCO & C & XLNX & DELL & ORCL & LLTC & CTAS & ADBE & MS & AXP & FISV & SCHW & OMC & PCAR & AMAT & CINF & LM \\
+			\bottomrule[1.25px]
+		\end{tabular}}
+	\end{adjustbox}
+	\addvbuffer[5pt 20pt]{\begin{tabular}{cccccc}\toprule[1.5px]
+			& \textbf{SPY} & \textbf{YHOO} & \textbf{DELL} & \textbf{AAPL} & \textbf{IBM} \\
+			\midrule
+			R-Squared & 0.8851 & 0.5780 & 0.4741 & 0.2514& 0.5365\\
+			\midrule
+			Error $\epsilon$ & 0.00469 & 0.01422 & 0.01118& 0.01447& 0.00658\\
+			\bottomrule[1.25px]
+		\end{tabular}} \\
+Hoeffding's D \\
+\begin{adjustbox}{width = 1\textwidth}
+	\small
+	\addvbuffer[10pt 5pt]{\begin{tabular}{c|cccccccccccccccccccc}\toprule[1.5px]
+			SPY & C & AXP & NTRS & JPM & GS & MS & BEN & PCAR & DOV & ETN & STI & BBT & TROW & GE & KEY & LM & WFC & MLX & LNC & EMR \\
+			\midrule
+			YHOO & EBAY & AMZN & SPY & NTAP & VRSN & TER & JNPR & XLNX & JDSU & LLTC & JBL & ADI & KLAC & QCOM & ADBE & TXN & FFIV & INTC & AMAT & ROP \\
+			\midrule
+			DELL & SPY & INTC & CSCO & LLTC & MSFT & AMAT & IBM & ADI & LRCX & HPQ & MOLX & XLNX & TAS & ORCL & ALTR & BRCM & NTAP & PCAR & JDSU & TXN \\
+			\midrule
+			AAPL & SPY & NTAP & INTC & DELL & JNPR & MSFT & IR & BRCM & PCAR & CSCO & ORCL & DOV & MOLX & SIAL &LLTC & CTAS & PPG & CHRW & FSIV & JCI \\
+			\midrule
+			IBM & SPY & MSFT & INTC & CSCO & FISV & C & DELL & ORCL & ADBE & XLNX & AXP & LLTC & CTAS & OMC & HPQ & MOLX & HIG & CSC & PCAR & AMAT \\
+			\bottomrule[1.25px]
+		\end{tabular}}
+	\end{adjustbox}
+	\addvbuffer[5pt 20pt]{\begin{tabular}{cccccc}\toprule[1.5px]
+			& \textbf{SPY} & \textbf{YHOO} & \textbf{DELL} & \textbf{AAPL} & \textbf{IBM} \\
+			\midrule
+			R-Squared & 0.8937 & 0.5793 & 0.4756 & 0.2515& 0.5432\\
+			\midrule
+			Error $\epsilon$ & 0.00444 & 0.01423 & 0.0112& 0.01450& 0.00673\\
+			\bottomrule[1.25px]
+		\end{tabular}} \\
+Distance\\
+\begin{adjustbox}{width = 1\textwidth}
+	\small
+	\addvbuffer[10pt 5pt]{\begin{tabular}{c|cccccccccccccccccccc}\toprule[1.5px]
+			SPY & C & AXP & NTRS & JPM & GS & MS & BEN & PCAR & DOV & ETN & STI & BBT & TROW & GE & KEY & LM & WFC & MLX & LNC & EMR \\
+			\midrule
+			YHOO & EBAY & AMZN & SPY & NTAP & VRSN & TER & JNPR & XLNX & JDSU & LLTC & JBL & ADI & KLAC & QCOM & ADBE & TXN & FFIV & INTC & AMAT & ROP \\
+			\midrule
+			DELL & SPY & INTC & CSCO & LLTC & MSFT & AMAT & IBM & ADI & LRCX & HPQ & MOLX & XLNX & TAS & ORCL & ALTR & BRCM & NTAP & PCAR & JDSU & TXN \\
+			\midrule
+			AAPL & SPY & NTAP & INTC & DELL & JNPR & MSFT & IR & BRCM & PCAR & CSCO & ORCL & DOV & MOLX & SIAL &LLTC & CTAS & PPG & CHRW & FSIV & JCI \\
+			\midrule
+			IBM & SPY & MSFT & INTC & CSCO & FISV & C & DELL & ORCL & ADBE & XLNX & AXP & LLTC & CTAS & OMC & HPQ & MOLX & HIG & CSC & PCAR & AMAT \\
+			\bottomrule[1.25px]
+		\end{tabular}}
+	\end{adjustbox}
+	\addvbuffer[5pt 20pt]{\begin{tabular}{cccccc}\toprule[1.5px]
+			& \textbf{SPY} & \textbf{YHOO} & \textbf{DELL} & \textbf{AAPL} & \textbf{IBM} \\
+			\midrule
+			R-Squared & 0.8937 & 0.5793 & 0.4756 & 0.2515& 0.5432\\
+			\midrule
+			Error $\epsilon$ & 0.00444 & 0.01423 & 0.0112& 0.01450& 0.00673\\
+			\bottomrule[1.25px]
+		\end{tabular}} \\
 
-RETS = na.omit(RETS);
-numStock = dim(RETS)[2];
-
-# Calculate the various correlations:
-# Pearson, Spearman:
-PCOR = cor(RETS, method = "pearson");
-SCOR = cor(RETS, method = "spearman");
-
-#Maximal
-#install.packages('acepack');
-MaxCOR = matrix(, nrow = numStock, ncol = numStock);
-colnames(MaxCOR) = colnames(RETS);
-rownames(MaxCOR) = colnames(RETS);
-
-for (i in 1:numStock) {
-	for(j in 1:numStock) {
-		transfVars = ace(RETS[,i],RETS[,j]);
-		MaxCOR[i,j] = cor(transfVars$tx,transfVars$ty)[1];
-	}
-}
-
-#Hoeffding's D
-#install.packages('Hmisc');
-HCOR = hoeffd(RETS)$D;
-
-#Distance
-DCOR = matrix(, nrow = numStock, ncol = numStock);
-colnames(DCOR) = colnames(RETS);
-rownames(DCOR) = colnames(RETS);
-#install.packages('energy');
-for (i in 1:numStock) {
-	for(j in 1:numStock) {
-		DCOR[i,j] = dcor(RETS[,i],RETS[,j]);
-	}	
-}
-
-#MIC
-#install.packages('minerva');
-MICCOR = mine(RETS,n.cores = 4)$MIC
-\end{lstlisting}
-Of course, this is the simple part. Now for the instrument we would like to predict, we need to sort it's correlation values in descending order, and choose the amount to use in our linear regression. Once sorted, we build our linear regression model and evaluate its accuracy. 
-\section{Numerical experiments on synthetic data}  \label{sec:NumExpSyn}
-Present here the numerical results you obtain on a synthetically generated data set...
-
-\section{Numerical experiments on real data}   \label{sec:NumExpReal}
-Present here the numerical results you obtain on a real data set...
-
-
+\end{center}
+\newpage
 \section{Summary and conclusion}  \label{sec:conclusion}
-Summarize your work in this section.
+ We can easily note that \textit{SPY} has strong relationships with the other instruments. Other big industry names arise as well, with \textit{AMZN}, \textit{DELL}, \textit{IBM}, \textit{JNPR}, and \textit{AXP} appear quite often. This probably indicates that their presence greatly affects the economy of even smaller industries. \vspace{5mm} \\
+As expected, we see no clear results from our Pearson and Spearman models. They seem to show varying results. Hoeffding's D doesn't give much exciting results either, mirroring very closely to Pearson and Spearman. Hoeffding's D does have slightly lower error values than the standard, which may indicate a more viable prediction. More information can be found by repeated testing with all 477 instruments. \vspace{5mm} \\
+We do note that instruments with strong relationships, such as \textit{SPY}, have high R-squared values and low errors. This may demonstrate that correlation ranking models are effective only on predicting major stock returns. \vspace{5mm} \\
 
 
 \bibliographystyle{siam}

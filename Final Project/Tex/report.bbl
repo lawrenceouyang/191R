@@ -1,13 +1,21 @@
 \begin{thebibliography}{1}
 
+\bibitem{CorComp}
+{\sc Michael Clark}, {\em A comparison of correlation measures}, CSR,  (2013).
+
 \bibitem{CompLogSimRet}
 {\sc Robert~S. Hudson and Andros Gregoriou}, {\em Calculating and comparing
   security returns is harder than you think: A comparison between logarithmic
   and simple returns}, SSRN,  (2010).
 
-\bibitem{puckmason}
-{\sc M.~P. Rombach, M.~A. Porter, J.~H. Fowler, and P.~J. Mucha}, {\em
-  Core-periphery structure in networks}, SIAM J. Appl. Math., 74 (2014),
-  pp.~167--190.
+\bibitem{CompGeneExpress}
+{\sc Asuka~Nakata Suzana~de Siqueira~Santos, Daniel Yasumasa~Takahashi and
+  Andre Fujita}, {\em A comparative study of statistical methods used to
+  identify dependencies between gene expression signals}, Briefings in
+  Bioinformatics, 15 (2013), pp.~906--918.
+
+\bibitem{CorDist}
+{\sc Bakirov~N. Szekely~G., Rizzo~M.}, {\em Measuring and testing independence
+  by correlation of distances}, Ann Stat, 35 (2007).
 
 \end{thebibliography}
