@@ -1,6 +1,6 @@
 project191 = function() {
 # Consider the given RETS matrix, remove poor columns and rows:
-
+load(SP_500_2003_2015.data);
 #If the first 100 entries are NA, remove the column
 #By going in reverse direction, we avoid deleting columns during the iteration
 #causing out of bound errors.
@@ -37,15 +37,15 @@ S_COR = cor(tRETS, method = "spearman");
 H_COR = hoeffd(tRETS)$D;
 
 #Distance
-D_COR = matrix(, nrow = numStock, ncol = numStock);
-colnames(DCOR) = colnames(tRETS);
-rownames(DCOR) = colnames(tRETS);
+DIST_COR = matrix(, nrow = numStock, ncol = numStock);
+colnames(DIST_COR) = colnames(tRETS);
+rownames(DIST_COR) = colnames(tRETS);
 #install.packages('energy');
 #library('energy');
-#This took several hours to compute.
+#This took 8.5 hours to compute (190 million calculations)
 for (i in 1:numStock) {
 	for(j in 1:numStock) {
-		DCOR[i,j] = dcor(tRETS[,i],tRETS[,j]);
+		DIST_COR[i,j] = dcor(tRETS[,i],tRETS[,j]);
 	}	
 }
 
@@ -53,113 +53,38 @@ for (i in 1:numStock) {
 Selection = matrix(c("SPY", "YHOO", "DELL", "AAPL", "IBM"));
 
 #Obtain the top values and build the linear regression
+#1. Sort by top correlation and retrieve first 20, excluding itself
+#2. Copy the names of the top 20 and use them in the linear regression
+#3. Compute the regression model
+#4. Compute error term
 
-#Pearson
 for (i in 1:dim(Selection)[1]) {
-Top = SortCor(P_COR, "pearson", Selection[i]);
-func = paste(Selection[i],"~");
-for (j in 1:20) {
-	if (j == 20) {
-		func = paste(func, Top[j]);
-	}
-	else {
-		func = paste(func, Top[j], "+");
-	}
-}
-func = formula(func);
-lm.fit = lm(func, data = dftRETS);
-print(summary(lm.fit));
-prediction = predict(lm.fit, newdata = dfRETS, se.fit = TRUE);
-prediction = prediction$fit;
-prediction = matrix(prediction);
-real = RETS[501:dim(RETS)[1], which(colnames(RETS) == Selection[i])];
-real = matrix(real);
-error = abs(real - prediction);
-error = colSums(error)/(dim(RETS)[1] - 500);
-print(error);
-}
+	print(paste(Selection[i],": Pearson"));
+	func = SortCor(P_COR, "pearson", Selection[i]);
+	linRegression(func, dftRETS, dfRETS, Selection[i]);
 
-#Spearman
-for (i in 1:dim(Selection)[1]) {
-Top = SortCor(S_COR, "spearman", Selection[i]);
-func = paste(Selection[i],"~");
-for (j in 1:20) {
-	if (j == 20) {
-		func = paste(func, Top[j]);
-	}
-	else {
-		func = paste(func, Top[j], "+");
-	}
-}
-func = formula(func);
-lm.fit = lm(func, data = dftRETS);
-print(summary(lm.fit));
-prediction = predict(lm.fit, newdata = dfRETS, se.fit = TRUE);
-prediction = prediction$fit;
-prediction = matrix(prediction);
-real = RETS[501:dim(RETS)[1], which(colnames(RETS) == Selection[i])];
-real = matrix(real);
-error = abs(real - prediction);
-error = colSums(error)/(dim(RETS)[1] - 500);
-print(error);
-}
+	print(paste(Selection[i],": Spearman"));
+	func = SortCor(S_COR, "spearman", Selection[i]);
+	linRegression(func, dftRETS, dfRETS, Selection[i]);
 
-#Hoeffding
-for (i in 1:dim(Selection)[1]) {
-Top = SortCor(H_COR, "hoeffding", Selection[i]);
-func = paste(Selection[i],"~");
-for (j in 1:20) {
-	if (j == 20) {
-		func = paste(func, Top[j]);
-	}
-	else {
-		func = paste(func, Top[j], "+");
-	}
-}
-func = formula(func);
-lm.fit = lm(func, data = dftRETS);
-print(summary(lm.fit));
-prediction = predict(lm.fit, newdata = dfRETS, se.fit = TRUE);
-prediction = prediction$fit;
-prediction = matrix(prediction);
-real = RETS[501:dim(RETS)[1], which(colnames(RETS) == Selection[i])];
-real = matrix(real);
-error = abs(real - prediction);
-error = colSums(error)/(dim(RETS)[1] - 500);
-print(error);
-}
+	print(paste(Selection[i],": Hoeffding's D"));
+	func = SortCor(H_COR, "hoeffding", Selection[i]);
+	linRegression(func, dftRETS, dfRETS, Selection[i]);
 
-#Distance Correlation
-for (i in 1:dim(Selection)[1]) {
-Top = SortCor(H_COR, "distance", Selection[i]);
-func = paste(Selection[i],"~");
-for (j in 1:20) {
-	if (j == 20) {
-		func = paste(func, Top[j]);
-	}
-	else {
-		func = paste(func, Top[j], "+");
-	}
-}
-func = formula(func);
-lm.fit = lm(func, data = dftRETS);
-print(summary(lm.fit));
-prediction = predict(lm.fit, newdata = dfRETS, se.fit = TRUE);
-prediction = prediction$fit;
-prediction = matrix(prediction);
-real = RETS[501:dim(RETS)[1], which(colnames(RETS) == Selection[i])];
-real = matrix(real);
-error = abs(real - prediction);
-error = colSums(error)/(dim(RETS)[1] - 500);
-print(error);
+	print(paste(Selection[i],": Distance"));
+	func = SortCor(DIST_COR, "distance", Selection[i]);
+	linRegression(func, dftRETS, dfRETS, Selection[i]);
 }
 
 }
 
+##############################################################################
 
 # Sort the correlation coefficients in decending order
 # Since pearson and spearman have negative coefficients that can represent
 # strong correlation, sort by magnitude
+# return top 20 formulated in a string for the lm function
+
 SortCor = function(Cor, method, colLabel) {
 	Sorted = data.frame(Cor, row.names = rownames(Cor));
 	col = which(colnames(Sorted) == colLabel);
@@ -170,6 +95,40 @@ SortCor = function(Cor, method, colLabel) {
 		Sorted = Sorted[ order(-Sorted[,col]), ];
 	}
 	Top = rownames(Sorted)[2:21];
-	return(Top);
+	func = paste(colLabel,"~");
+	for (j in 1:20) {
+		if (j == 20) {
+			func = paste(func, Top[j]);
+		}
+		else {
+			func = paste(func, Top[j], "+");
+		}
+	}
+	func = formula(func);
+	return(func);
+}
+
+##############################################################################
+
+#Build linear regression model
+linRegression = function(func, dftRETS, dfRETS, selection) {
+#func: function for regression
+#dftRETS: training matrix
+#dfRETS: test matrix
+#selection: the selected instrument
+
+lm.fit = lm(func, data = dftRETS);
+print(summary(lm.fit));
+prediction = predict(lm.fit, newdata = dfRETS[501:dim(dfRETS)[1],], se.fit = TRUE);
+prediction = prediction$fit;
+prediction = matrix(prediction);
+real = dfRETS[501:dim(dfRETS)[1], which(colnames(dfRETS) == selection)];
+real = matrix(real);
+print(dim(real));
+print(dim(prediction));
+error = abs(real - prediction);
+error = colSums(error)/(dim(dfRETS)[1] - 500);
+print(error);
+
 }
 

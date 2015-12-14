@@ -88,7 +88,7 @@
 \vspace{5mm}
 
 \begin{abstract}
-The prediction of the returns of a stock has been a very popular problem since the very existence of the stock market. Given the day's returns, what will tomorrow's look like? What will it look like next week, or next month? An idea to examine this is the use of correlation measures. The market is not an isolated system; all things affect one another. This work will use a variety of known correlation measures (Pearson's, Spearman's, Hoeffding, distance correlation) to compute the most relevant instruments to which we will apply linear regression. The goal is to find an accurate predictor for future returns. 
+The prediction of the returns of a stock has been a very popular problem since the very existence of the stock market. Given the day's returns, what will tomorrow's look like? What will it look like next week, or next month? An idea to examine this is the use of correlation measures. The market is not an isolated system; all things affect one another. This work will use a variety of known correlation measures (Pearson's, Spearman's, Hoeffding, distance correlation) as a dimension reduction tool to compute the most relevant instruments to which we will apply linear regression. The goal is to find an accurate predictor for future returns. 
 \end{abstract}
 
 
@@ -143,17 +143,25 @@ dCor(X,Y) = \frac{dCov(X,Y)}{\sqrt{dVar(X)dVar(Y)}}
 With the above measurements considered, in Section \ref{sec:ourWork} we put them to the test by extracting the top values and using it for linear regression. 
 In Section \ref{sec:NumExpReal} we test the algorithms for a real data set. Finally, in Section  \ref{sec:conclusion} we conclude with a summary of our results, and discuss future possible research direction. 
 
-
+\vspace{5mm}
 
 \section{Related work} \label{sec:relWork}
 
-\textbf{Questions/Comments/Things that could be done}
+\begin{center}
+	\textit{Some questions that should be considered before continuing.}
+\end{center}
+
+\vspace{2mm}
+
 \begin{itemize}
 \item Since obtaining such large correlation matrices are calculation intensive, what other methods can be used to trim our selection before creating our matrices?
-\item What kind of accuracy would using alternating entries give? 
-\item What correlation measure is most affective, and why?
-\item How many instruments should be considered when building our model? Using more would indeed increase our R-squared, but would it result in over-fitting?
+\item What kind of accuracy would using the correlation of alternating entries give? 
+\item Which correlation measure is most affective, and why?
+\item How many instruments should be considered when building our model? Using more would increase our R-squared, but would it result in over-fitting?
+\item Disregarding computing time, how much data should be used to build the correlation matrices?
 \end{itemize}
+
+\vspace{5mm}
 
 \section{Our work}    \label{sec:ourWork}
 \subsection{The Data}
@@ -163,7 +171,7 @@ The data set being used is the logarithmic return prices from date to date for 4
 \subsection{The Process}
 With our primmed and proper data, we begin by calculating their coefficient matrices. Considering the size of our data, the calculation of our coefficient matrices take a very large amount of time. 
 Of course, building the matrices is the simple, although lengthy, part. \vspace{5mm}\\
-Now for the instrument we would like to predict, we need to sort it's correlation values in descending order, and choose the amount to use in our linear regression. Once sorted, we build our linear regression model and evaluate its accuracy. \vspace{5mm} \\
+Now for the instrument we would like to predict, we need to sort it's correlation values in descending order and choose the amount to use in our linear regression. Once sorted, we build our linear regression model and evaluate its accuracy.\vspace{5mm} \\
 With our model, we then use our remaining data points to create a predicted vector $\hat{y}$. We then compare our prediction with the actual values, and calculate the average error $\epsilon$.$\epsilon$ is defined as:
 \begin{equation}
 \epsilon = |\frac{y - \hat{y}}{nrow - 100}|
@@ -172,7 +180,7 @@ We want a minimized error $\epsilon$ as that would denote a more accurate predic
 \newpage
 \section{Numerical Results}   \label{sec:NumExpReal}
 The tables below represents a selection of 5 instruments, and the 20 instruments that had the strongest relationships from left to right with them. This includes the average error and the adjusted R-squared value for the given regression model.\\
-\begin{center}
+\begin{center} \label{tab:relation}
 Pearson \\
 \begin{adjustbox}{width = 1\textwidth}
 	\small
@@ -249,34 +257,62 @@ Distance\\
 \begin{adjustbox}{width = 1\textwidth}
 	\small
 	\addvbuffer[10pt 5pt]{\begin{tabular}{c|cccccccccccccccccccc}\toprule[1.5px]
-			SPY & C & AXP & NTRS & JPM & GS & MS & BEN & PCAR & DOV & ETN & STI & BBT & TROW & GE & KEY & LM & WFC & MLX & LNC & EMR \\
+			SPY & C & JPM & GS & AXP & NTRS & MS & BBT & STI & TROW & PCAR & ETN & DOV & BEN & GE & KEY & WFC & EMR & LM & BAC & LNC \\
 			\midrule
-			YHOO & EBAY & AMZN & SPY & NTAP & VRSN & TER & JNPR & XLNX & JDSU & LLTC & JBL & ADI & KLAC & QCOM & ADBE & TXN & FFIV & INTC & AMAT & ROP \\
+			YHOO & EBAY & AMZN & SPY & NTAP & VRSN & JNPR & TER & ADI & XLNX & JDSU & LLTC & JBL & KLAC & ADBE & TXN & INTC & BRCM & A & FFIV & QCOM \\
 			\midrule
-			DELL & SPY & INTC & CSCO & LLTC & MSFT & AMAT & IBM & ADI & LRCX & HPQ & MOLX & XLNX & TAS & ORCL & ALTR & BRCM & NTAP & PCAR & JDSU & TXN \\
+			DELL & SPY & INTC & CSCO & LLTC & AMAT & MSFT & ADI & LRCX & IBM & XLNX & CTAS & MOLX & HPQ & ALTR & PCAR & KLAC & NTAP & ORCL & TXN & BRCM \\
 			\midrule
-			AAPL & SPY & NTAP & INTC & DELL & JNPR & MSFT & IR & BRCM & PCAR & CSCO & ORCL & DOV & MOLX & SIAL &LLTC & CTAS & PPG & CHRW & FSIV & JCI \\
+			AAPL & SPY & NTAP & INTC & JNPR & DELL & MSFT & IR & CSCO & BRCM & PCAR & PPG & SIAL & LLTC & DOV & MOLX & FISV & JCI & ORCL & YHOO & CTAS \\
 			\midrule
-			IBM & SPY & MSFT & INTC & CSCO & FISV & C & DELL & ORCL & ADBE & XLNX & AXP & LLTC & CTAS & OMC & HPQ & MOLX & HIG & CSC & PCAR & AMAT \\
+			IBM & SPY & MSFT & INTC & CSCO &C & XLNX & LLTC & AXP & OMC & CTAS & ORCL & MS & DELL & FISV & ADBE & AMAT & SCHW & PCAR & MOLX & BK \\
 			\bottomrule[1.25px]
 		\end{tabular}}
 	\end{adjustbox}
 	\addvbuffer[5pt 20pt]{\begin{tabular}{cccccc}\toprule[1.5px]
 			& \textbf{SPY} & \textbf{YHOO} & \textbf{DELL} & \textbf{AAPL} & \textbf{IBM} \\
 			\midrule
-			R-Squared & 0.8937 & 0.5793 & 0.4756 & 0.2515& 0.5432\\
+			R-Squared & 0.8851 & 0.5778 & 0.4741 & 0.2447& 0.5358\\
 			\midrule
-			Error $\epsilon$ & 0.00444 & 0.01423 & 0.0112& 0.01450& 0.00673\\
+			Error $\epsilon$ & 0.00607 & 0.01534 & 0.01231& 0.0137& 0.00702\\
 			\bottomrule[1.25px]
 		\end{tabular}} \\
 
 \end{center}
 \newpage
-\section{Summary and conclusion}  \label{sec:conclusion}
- We can easily note that \textit{SPY} has strong relationships with the other instruments. Other big industry names arise as well, with \textit{AMZN}, \textit{DELL}, \textit{IBM}, \textit{JNPR}, and \textit{AXP} appear quite often. This probably indicates that their presence greatly affects the economy of even smaller industries. \vspace{5mm} \\
-As expected, we see no clear results from our Pearson and Spearman models. They seem to show varying results. Hoeffding's D doesn't give much exciting results either, mirroring very closely to Pearson and Spearman. Hoeffding's D does have slightly lower error values than the standard, which may indicate a more viable prediction. More information can be found by repeated testing with all 477 instruments. \vspace{5mm} \\
-We do note that instruments with strong relationships, such as \textit{SPY}, have high R-squared values and low errors. This may demonstrate that correlation ranking models are effective only on predicting major stock returns. \vspace{5mm} \\
+\vspace*{\fill}
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.46\columnwidth]{Images/PearsonSPY}\includegraphics[width=0.46\columnwidth]{Images/PearsonAAPL}\\
+		\includegraphics[width=0.46\columnwidth]{Images/SpearmanSPY}\includegraphics[width=0.46\columnwidth]{Images/SpearmanAAPL}
+	\end{center}
+	\caption{The scatterplot for our real values and prediction values of instrument \textit{SPY}. and \textit{AAPL} for Pearson and Spearman. Due to the density, it is difficult to see point by point the differences, but the relationship is still quite clear.}
+	\label{fig:PearSpear}
+\end{figure}
+\vspace*{\fill}
+\newpage
+\vspace*{\fill}
+\begin{figure}[h]
+	\begin{center}
+		\includegraphics[width=0.46\columnwidth]{Images/HoeffdingSPY}\includegraphics[width=0.46\columnwidth]{Images/HoeffdingAAPL}\\
+		\includegraphics[width=0.46\columnwidth]{Images/DistanceSPY}\includegraphics[width=0.46\columnwidth]{Images/DistanceAAPL}\\
+	\end{center}
+	\caption{The The scatterplot for our real values and prediction values of instrument \textit{SPY}. and \textit{AAPL} for Hoeffding's D and distance correlation.  Due to the density, it is difficult to see point by point the differences, but the relationship is still quite clear.}
+	\label{fig:HoeffDist}
+\end{figure}
+\vspace*{\fill}
+\newpage
 
+
+\section{Results}  \label{sec:conclusion}
+
+\subsection{Summary}
+
+ We can easily note that \textit{SPY} has strong relationships with the other instruments. Other big industry names arise as well, with \textit{AMZN}, \textit{DELL}, \textit{IBM}, \textit{JNPR}, and \textit{AXP} appear quite often. This probably indicates that their presence greatly affects the economy of even smaller industries. Examining the tables in \ref{tab:relation}, we see that the different correlation produce very similar rankings, which is the reason why our results are very similar.  \vspace{2mm} \\
+As expected, we see no clear results from our Pearson and Spearman models. They seem to show varying results. Hoeffding's D and distance correlation do not give much exciting results either, mirroring very closely to Pearson and Spearman. Hoeffding's D does have slightly lower error values than the standard, which may indicate a more viable prediction, while distance correlation gives less accurate results. Figure \ref{fig:HoeffDist} agrees with our result. More information can be found by repeated testing with all 477 instruments. We do note that instruments with strong relationships, such as \textit{SPY}, have high R-squared values and low errors. This may demonstrate that correlation ranking models are effective only on predicting major stock returns. Intuitively, since stronger relationships like with \textit{SPY} greatly affect other instruments, we can reasonably assume that it takes closer form to a linear relationship with overall increases or decreases based on other instruments. Weaker instruments will thus take a more nonlinear form, as a large number of less strong correlations can result in nonlinearity. This perhaps can be tested using other regression models.
+
+\subsection{Conclusion}
+Although not perfect, our correlation ranking selection method does produce a model with a degree of good accuracy, but only for select instruments. Distance correlation, unfortunately, seems inefficient as the calculations required to compute the correlation matrix is extremely high. The results of Pearson, Spearman, and Hoeffding's D are relatively similar for our chosen instruments. Since these 3 correlation measures are relatively simple to compute, all three can be used when analyzing strong relationship instruments such as \textit{SPY}.  Using this model, it is very possible to create an investment method such that we have improved Sharpe ratios. Although more testing is required, these results do demonstrate why correlation is such a prevalent statistical tool. 
 
 \bibliographystyle{siam}
 \bibliography{project_math191}
